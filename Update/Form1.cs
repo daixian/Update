@@ -26,11 +26,6 @@ namespace Update
             DoUpdate.CreatConfigFile("./UpdateConfig.json");
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            IncrementalUpdate.CreateSoftVersionFile(@"C:\work\VRMachine\UpdateFile\v1.0\MRSystem", new uint[] { 1, 0, 0, 0 }, "http://127.0.0.1/download", @"C:\work\VRMachine\UpdateFile\v1.0\SoftVer.json");
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             Task.Run(async () =>

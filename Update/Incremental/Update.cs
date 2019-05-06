@@ -63,9 +63,20 @@ namespace Update.Incremental
                 {
                     await Http.Get(config.newVersionUrl[i]).OnSuccess((rtext) =>
                         {
-                            newVersionSoft = JsonMapper.ToObject<SoftFile>(rtext);
-                            isGetNewVersionInfo = true;
-                            DLog.LogI($"DoUpdate.Start():联网获取最新软件版本成功,url={config.newVersionUrl[i]},最新版本为v{newVersionSoft.version[0]}.{newVersionSoft.version[1]}.{newVersionSoft.version[2]}.{newVersionSoft.version[3]}");
+                            if (!string.IsNullOrEmpty(rtext))
+                            {
+                                try
+                                {
+                                    newVersionSoft = JsonMapper.ToObject<SoftFile>(rtext);
+                                    isGetNewVersionInfo = true;
+                                    DLog.LogI($"DoUpdate.Start():联网获取最新软件版本成功,url={config.newVersionUrl[i]},最新版本为v{newVersionSoft.version[0]}.{newVersionSoft.version[1]}.{newVersionSoft.version[2]}.{newVersionSoft.version[3]}");
+                                }
+                                catch (Exception)
+                                {
+                                    newVersionSoft = null;
+                                }
+                            }
+
                         }).OnFail((e) =>
                         {
                             DLog.LogW($"DoUpdate.Start():联网获取最新软件版本失败,url={config.newVersionUrl[i]}");
