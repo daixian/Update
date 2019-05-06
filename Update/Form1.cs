@@ -31,10 +31,31 @@ namespace Update
             IncrementalUpdate.CreateSoftVersionFile(@"C:\work\VRMachine\UpdateFile\v1.0\MRSystem", new uint[] { 1, 0, 0, 0 }, "http://127.0.0.1/download", @"C:\work\VRMachine\UpdateFile\v1.0\SoftVer.json");
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
-            DoUpdate doUpdate = new DoUpdate();
-            doUpdate.Start("./UpdateConfig.json");
+            Task.Run(async () =>
+            {
+                DoUpdate doUpdate = new DoUpdate();
+                await doUpdate.Start("./UpdateConfig.json", setText, setProgress);
+                this.Invoke(new Action(() => { this.Close(); }));
+            });
         }
+
+        private void setProgress(int value)
+        {
+            this.Invoke(new Action(() =>
+            {
+                this.progressBar1.Value = value;
+            }));
+        }
+
+        private void setText(string text)
+        {
+            this.Invoke(new Action(() =>
+            {
+                this.label1.Text = text;
+            }));
+        }
+
     }
 }
