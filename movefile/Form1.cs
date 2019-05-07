@@ -11,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.ServiceProcess;
+using System.Threading;
 
 namespace movefile
 {
@@ -152,15 +153,10 @@ namespace movefile
         {
             this.Invoke(new Action(() =>
             {
-                MessageBox.Show("文件覆盖完毕!");
-                this.Close();
+                TipWin tipSuccess = new TipWin();
+                tipSuccess.Show();
+                this.Hide();
             }));
-
-            this.Invoke(new Action(async () =>
-           {
-               await Task.Delay(5000);//5秒后自动关闭?
-               this.Close();
-           }));
         }
 
         private void StartEXE(string fileName)

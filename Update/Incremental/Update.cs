@@ -138,30 +138,49 @@ namespace Update.Incremental
                 int doneCount = 0;
                 foreach (var item in downloadList.files)
                 {
-                    FileInfo dwfilePath = new FileInfo(Path.Combine(downlodeDir.FullName, item.relativePath));
-                    FileInfo targefilePath = new FileInfo(Path.Combine(config.SoftDir, item.relativePath));
-                    //判断文件是否已经存在了,就跳过到下一个文件
-                    if (dwfilePath.Exists && dwfilePath.SHA256() == item.SHA256)
+                    try
                     {
-                        setMessage($"{item.relativePath} cache!");
-                    }
-                    else if (targefilePath.Exists && targefilePath.SHA256() == item.SHA256)
-                    {
-                        setMessage($"{item.relativePath} 目标位置文件是最新!");
-                    }
-                    else
-                    {
-                        setMessage($"下载:{item.relativePath}...");
-                        //如果文件不存在才下载
-                        await Http.Get(item.url).DownloadTo(dwfilePath.FullName).OnFail((e) =>
+                        FileInfo dwfilePath = new FileInfo(Path.Combine(downlodeDir.FullName, item.relativePath));
+                        FileInfo targefilePath = new FileInfo(Path.Combine(config.SoftDir, item.relativePath));
+                        //判断文件是否已经存在了,就跳过到下一个文件
+                        if (targefilePath.Exists && targefilePath.SHA256() == item.SHA256)
                         {
-                            DLog.LogE($"DoUpdate.Start():下载文件失败...  {item.url}");
-                            isError = true;
-                        }).GoAsync();
+                            setMessage($"{item.relativePath} 目标位置文件是最新,不需要下载!");
+                            if (dwfilePath.Exists)
+                            {
+                                dwfilePath.Delete();
+                            }
+                        }
+                        else if (dwfilePath.Exists && dwfilePath.SHA256() == item.SHA256)
+                        {
+                            setMessage($"{item.relativePath} 有缓存文件了!");
+                        }
+                        else
+                        {
+                            setMessage($"下载:{item.relativePath}...");
+                            //如果文件不存在才下载
+                            await Http.Get(item.url).DownloadTo(dwfilePath.FullName).OnFail((e) =>
+                            {
+                                DLog.LogE($"DoUpdate.Start():下载文件失败...  {item.url}");
+                                isError = true;
+                            }).GoAsync();
+
+                        }
+                        doneCount++;
+                        setProgress(doneCount * 100 / downloadList.files.Count);
                     }
-                    doneCount++;
-                    setProgress(doneCount * 100 / downloadList.files.Count);
+                    catch (Exception e)
+                    {
+                        setMessage($"下载文件发生错误!" + e.Message);
+                        isError = true;
+                    }
                 }
+            }
+            FileInfo[] needCopyFis = downlodeDir.GetFiles("*");
+            if (needCopyFis.Length == 0)
+            {
+                setMessage($"没有需要更新的文件!");
+                return;
             }
 
             setMessage($"所有文件下载完成!");
