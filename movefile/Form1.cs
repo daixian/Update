@@ -8,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.ServiceProcess;
 
 namespace movefile
 {
@@ -33,6 +36,16 @@ namespace movefile
         /// </summary>
         private string targetDir;
 
+        /// <summary>
+        /// 要启动的exe
+        /// </summary>
+        private List<string> listStartEXE = new List<string>();
+
+        /// <summary>
+        /// 要启动的服务
+        /// </summary>
+        private List<string> listStartServer = new List<string>();
+
         private void Form1_Load(object sender, EventArgs e)
         {
             Task.Run(() =>
@@ -54,6 +67,27 @@ namespace movefile
                 string[] lines = File.ReadAllLines(configFile);
                 sourceDir = lines[0];//第一行表示源文件夹位置
                 targetDir = lines[1];//第二行表示目标文件夹
+
+                for (int i = 2; i < lines.Length; i++)
+                {
+                    //这是一个要启动的exe的配置
+                    Match m = Regex.Match(lines[i], @"^exe\s*:\s*");
+                    if (m.Success)
+                    {
+                        listStartEXE.Add(lines[i].Substring(m.Index + m.Length));
+                        continue;
+                    }
+                    m = Regex.Match(lines[i], @"^server\s*:\s*");
+                    if (m.Success)
+                    {
+                        listStartServer.Add(lines[i].Substring(m.Index + m.Length));
+                        continue;
+                    }
+                }
+            }
+            else
+            {
+                return;
             }
 
             DirectoryInfo di = new DirectoryInfo(sourceDir);
@@ -92,6 +126,16 @@ namespace movefile
             //创建一个文件标记拷贝完成了
             File.WriteAllLines("./movedone", new string[] { sourceDir, targetDir });
 
+            for (int i = 0; i < listStartEXE.Count; i++)
+            {
+                StartEXE(listStartEXE[i]);
+            }
+
+            for (int i = 0; i < listStartServer.Count; i++)
+            {
+                StartServer(listStartServer[i]);
+            }
+
             //关闭自己算了
             endCopy();
         }
@@ -111,6 +155,63 @@ namespace movefile
                 MessageBox.Show("文件覆盖完毕!");
                 this.Close();
             }));
+
+            this.Invoke(new Action(async () =>
+           {
+               await Task.Delay(5000);//5秒后自动关闭?
+               this.Close();
+           }));
+        }
+
+        private void StartEXE(string fileName)
+        {
+            try
+            {
+                FileInfo fi = new FileInfo(fileName);
+                if (fi.Exists)
+                {
+                    ProcessStartInfo psi = new ProcessStartInfo();
+                    psi.FileName = fi.FullName;
+                    psi.WorkingDirectory = fi.Directory.FullName;
+                    Process.Start(psi);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        /// <summary>
+        /// 启动服务
+        /// </summary>
+        /// <returns></returns>
+        public void StartServer(string name)
+        {
+
+            ServiceController sc = null;
+            try
+            {
+                //DLog.LogI("ServerHelper.StartServer():创建服务控制,准备启动服务！");
+                sc = new ServiceController(name);
+
+                //开启服务
+                if ((sc.Status.Equals(ServiceControllerStatus.Stopped)) || (sc.Status.Equals(ServiceControllerStatus.StopPending)))
+                {
+                    sc.Start();
+                    sc.Refresh();
+                }
+                // DLog.LogI("ServerHelper.StartServer():服务启动成功！");
+            }
+            catch (Exception e)
+            {
+                //DLog.LogE("ServerHelper.StartServer():尝试开始服务失败！e=" + e.Message);
+            }
+            finally
+            {
+                if (sc != null)
+                    sc.Close();
+            }
+
         }
     }
 }
