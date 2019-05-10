@@ -119,6 +119,7 @@ namespace Update.Incremental
             if (!downlodeDir.Exists)
                 Directory.CreateDirectory(downlodeDir.FullName);
 
+            DLog.LogI($"DoUpdate.Start():downlodeDir={downlodeDir.FullName}");
             //删除download文件夹里面所有不在下载列表里的文件,好方便等会无脑拷贝
             FileInfo[] fiIndw = downlodeDir.GetFiles("*", SearchOption.AllDirectories);
             for (int i = 0; i < fiIndw.Length; i++)
@@ -145,6 +146,7 @@ namespace Update.Incremental
                         //判断文件是否已经存在了,就跳过到下一个文件
                         if (targefilePath.Exists && targefilePath.SHA256() == item.SHA256)
                         {
+                            DLog.LogI($"{item.relativePath} 目标位置文件是最新,不需要下载!");
                             setMessage($"{item.relativePath} 目标位置文件是最新,不需要下载!");
                             if (dwfilePath.Exists)
                             {
@@ -153,10 +155,12 @@ namespace Update.Incremental
                         }
                         else if (dwfilePath.Exists && dwfilePath.SHA256() == item.SHA256)
                         {
+                            DLog.LogI($"{item.relativePath} 有缓存文件了!");
                             setMessage($"{item.relativePath} 有缓存文件了!");
                         }
                         else
                         {
+                            DLog.LogI($"下载:{item.relativePath}...");
                             setMessage($"下载:{item.relativePath}...");
                             //如果文件不存在才下载
                             await Http.Get(item.url).DownloadTo(dwfilePath.FullName).OnFail((e) =>
@@ -171,18 +175,21 @@ namespace Update.Incremental
                     }
                     catch (Exception e)
                     {
+                        DLog.LogE($"下载文件发生错误!" + e.Message);
                         setMessage($"下载文件发生错误!" + e.Message);
                         isError = true;
                     }
                 }
             }
-            FileInfo[] needCopyFis = downlodeDir.GetFiles("*");
+
+            FileInfo[] needCopyFis = downlodeDir.GetFiles("*", SearchOption.AllDirectories);
             if (needCopyFis.Length == 0)
             {
+                DLog.LogI($"没有需要更新的文件!");
                 setMessage($"没有需要更新的文件!");
                 return;
             }
-
+            DLog.LogI($"所有文件下载完成!");
             setMessage($"所有文件下载完成!");
 
             foreach (var item in config.NeedCloseExeName)
@@ -193,11 +200,17 @@ namespace Update.Incremental
                 }
             }
             setMessage($"启动拷贝文件程序...");
-
             //到了此处应该所有文件都下载完成了
             FileInfo movefileEXE = new FileInfo("./movefile.exe");
             if (movefileEXE.Exists)
+            {
+                DLog.LogI($"启动拷贝文件程序" + movefileEXE.FullName);
                 Process.Start(movefileEXE.FullName);
+            }
+            else
+            {
+                DLog.LogI($"启动拷贝文件程序 不存在" + movefileEXE.FullName);
+            }
         }
 
 
