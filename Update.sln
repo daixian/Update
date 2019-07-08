@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "movefile", "movefile\movefi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalcSHA256", "CalcSHA256\CalcSHA256.csproj", "{17C74D15-9BBF-47A3-9ABA-A6501BBD33A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTest", "UnitTest\UnitTest.csproj", "{9A63F9A7-F253-450F-BF1D-FFA99C4AB0F7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{05FFA182-2488-4A6A-BB5D-47A7AA75090A} = {05FFA182-2488-4A6A-BB5D-47A7AA75090A}
+		{60B69DFD-92BD-4888-91B0-65AEC4A88760} = {60B69DFD-92BD-4888-91B0-65AEC4A88760}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +45,10 @@ Global
 		{17C74D15-9BBF-47A3-9ABA-A6501BBD33A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17C74D15-9BBF-47A3-9ABA-A6501BBD33A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{17C74D15-9BBF-47A3-9ABA-A6501BBD33A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A63F9A7-F253-450F-BF1D-FFA99C4AB0F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A63F9A7-F253-450F-BF1D-FFA99C4AB0F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A63F9A7-F253-450F-BF1D-FFA99C4AB0F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A63F9A7-F253-450F-BF1D-FFA99C4AB0F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
