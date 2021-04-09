@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Update.Incremental.DTO;
 using xuexue.LitJson;
 using Ionic.Zip;
-using JumpKick.HttpLib;
 using xuexue.utility.Incremental.DTO;
 using System.Windows.Forms;
 using System.Threading;
@@ -15,6 +14,7 @@ using xuexue.utility.Incremental;
 using xuexue;
 using xuexue.utility;
 using System.Diagnostics;
+using Flurl.Http;
 
 namespace Update.Incremental
 {
@@ -61,28 +61,19 @@ namespace Update.Incremental
             {
                 if (!isGetNewVersionInfo)//有一个地址能成功就不再试后面的地址了
                 {
-                    await Http.Get(config.newVersionUrl[i]).OnSuccess((rtext) =>
-                        {
-                            if (!string.IsNullOrEmpty(rtext))
-                            {
-                                try
-                                {
-                                    newVersionSoft = JsonMapper.ToObject<SoftFile>(rtext);
-                                    isGetNewVersionInfo = true;
-                                    DLog.LogI($"DoUpdate.Start():联网获取最新软件版本成功,url={config.newVersionUrl[i]},最新版本为v{newVersionSoft.version[0]}.{newVersionSoft.version[1]}.{newVersionSoft.version[2]}.{newVersionSoft.version[3]}");
-                                }
-                                catch (Exception)
-                                {
-                                    newVersionSoft = null;
-                                }
-                            }
+                    try
+                    {
+                        string rtext = await config.newVersionUrl[i].GetStringAsync();
+                        newVersionSoft = JsonMapper.ToObject<SoftFile>(rtext);
+                        isGetNewVersionInfo = true;
+                        DLog.LogI($"DoUpdate.Start():联网获取最新软件版本成功,url={config.newVersionUrl[i]},最新版本为v{newVersionSoft.version[0]}.{newVersionSoft.version[1]}.{newVersionSoft.version[2]}.{newVersionSoft.version[3]}");
 
-                        }).OnFail((e) =>
-                        {
-                            DLog.LogW($"DoUpdate.Start():联网获取最新软件版本失败,url={config.newVersionUrl[i]}");
-                        }).GoAsync();
-
-
+                    }
+                    catch (Exception e)
+                    {
+                        newVersionSoft = null;
+                        DLog.LogW($"DoUpdate.Start():联网获取最新软件版本失败,url={config.newVersionUrl[i]},err={e.Message}");
+                    }
                 }
             }
             if (newVersionSoft == null)
@@ -163,12 +154,15 @@ namespace Update.Incremental
                             DLog.LogI($"下载:{item.relativePath}...");
                             setMessage($"下载:{item.relativePath}...");
                             //如果文件不存在才下载
-                            await Http.Get(item.url).DownloadTo(dwfilePath.FullName).OnFail((e) =>
+                            try
                             {
-                                DLog.LogE($"DoUpdate.Start():下载文件失败...  {item.url}");
+                                await item.url.DownloadFileAsync(dwfilePath.FullName);
+                            }
+                            catch (Exception e)
+                            {
+                                DLog.LogE($"DoUpdate.Start():下载文件失败...  {item.url},err={e.Message}");
                                 isError = true;
-                            }).GoAsync();
-
+                            }
                         }
                         doneCount++;
                         setProgress(doneCount * 100 / downloadList.files.Count);
