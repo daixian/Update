@@ -41,7 +41,7 @@ namespace Update.Incremental
         /// </summary>
         public async Task Start(string configPath, Action<string> setMessage, Action<int> setProgress)
         {
-            DLog.dlog_init("log", "F3dUpdate", DLog.INIT_RELATIVE.MODULE, false);
+            DLog.Init("log", "F3dUpdate", DLog.INIT_RELATIVE.MODULE, false);
 
             //载入配置
             setMessage("载入配置...");
@@ -185,6 +185,8 @@ namespace Update.Incremental
             }
             DLog.LogI($"所有文件下载完成!");
             setMessage($"所有文件下载完成!");
+
+            //TODO:这里需要向追踪服务查询是否空闲
 
             foreach (var item in config.NeedCloseExeName)
             {
