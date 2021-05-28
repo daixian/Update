@@ -41,7 +41,7 @@ namespace Update.Incremental
         /// </summary>
         public async Task Start(string configPath, Action<string> setMessage, Action<int> setProgress)
         {
-            DLog.Init("log", "F3dUpdate", DLog.INIT_RELATIVE.MODULE, false);
+            DLog.Init("log", "Update", DLog.INIT_RELATIVE.MODULE, false);
 
             //载入配置
             setMessage("载入配置...");
