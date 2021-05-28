@@ -156,7 +156,7 @@ namespace Update.Incremental
                             //如果文件不存在才下载
                             try
                             {
-                                await item.url.DownloadFileAsync(dwfilePath.FullName);
+                                await item.url.DownloadFileAsync(dwfilePath.Directory.FullName);
                             }
                             catch (Exception e)
                             {

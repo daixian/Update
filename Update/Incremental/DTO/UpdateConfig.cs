@@ -22,7 +22,7 @@ namespace Update.Incremental.DTO
         /// <summary>
         /// 要替换升级的软件的目录
         /// </summary>
-        public string SoftDir = @"C:\Program Files\MRSystem";
+        public string SoftDir = @"C:\Program Files\TrackingService";
 
         /// <summary>
         /// 自己工作保存的临时文件,下载文件等等的目录
@@ -37,12 +37,12 @@ namespace Update.Incremental.DTO
         /// <summary>
         /// 新版本的软件信息文件的URL
         /// </summary>
-        public string[] newVersionUrl = new string[] { "http://127.0.0.1:8012/update/mrsystem", "http://mr.xuexuesoft.com:8012/update/mrsystem" };
+        public string[] newVersionUrl = new string[] { "https://home.xuexuesoft.com:8010/update/TrackingService/v1.0.0.0.json" };
 
         /// <summary>
         /// 当移动文件前需要保证关闭的进程名
         /// </summary>
-        public string[] NeedCloseExeName = new string[] { "MRDevService", "MRSHelper", "Diagnosis" };
+        public string[] NeedCloseExeName = new string[] { "TrackerService", "Tracking", "Diagnosis" };
 
         /// <summary>
         /// 当升级成功之后需要启动的exe名
@@ -52,6 +52,6 @@ namespace Update.Incremental.DTO
         /// <summary>
         /// 当升级成功之后需要启动的Windows Server名
         /// </summary>
-        public string[] StartUpWinServerName = new string[] { "MRDevService" };
+        public string[] StartUpWinServerName = new string[] { "TrackerService" };
     }
 }

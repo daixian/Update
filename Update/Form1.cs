@@ -31,7 +31,7 @@ namespace Update
             Task.Run(async () =>
             {
                 DoUpdate doUpdate = new DoUpdate();
-                await doUpdate.Start("./UpdateConfig.json", setText, setProgress);
+                await doUpdate.Start(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UpdateConfig.json"), setText, setProgress);
                 this.Invoke(new Action(() => { this.Close(); }));
             });
         }

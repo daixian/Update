@@ -25,7 +25,7 @@ namespace movefile
         /// <summary>
         /// 配置文件
         /// </summary>
-        private string configFile = "./movefile.cf";
+        private string configFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "movefile.conf");
 
         /// <summary>
         /// 要拷贝的源文件夹

@@ -59,7 +59,7 @@ namespace CalcSHA256
         static string rootDir = ".";
 
         //等以后做成读取当前项目文件夹的配置内容
-        static string softVerson_rootPath = "C:\\Program Files\\MRSystem";
-        static string softVerson_rootURL = "http://mr.xuexuesoft.com:8010/soft/";
+        static string softVerson_rootPath = "C:\\Program Files\\TrackingService";
+        static string softVerson_rootURL = "https://home.xuexuesoft.com:8010/update/";
     }
 }
