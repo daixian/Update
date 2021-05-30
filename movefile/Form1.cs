@@ -202,9 +202,9 @@ namespace movefile
                         sc.Start();
                         sc.Refresh();
                     }
-                    if (sc.Status == ServiceControllerStatus.Running)
+                    if (sc.Status == ServiceControllerStatus.StartPending || sc.Status == ServiceControllerStatus.Running)
                     {
-                        DLog.LogI("ServerHelper.StartServer():服务启动成功！");
+                        DLog.LogI($"ServerHelper.StartServer():当前服务状态为{sc.Status},服务启动成功！");
                         break;
                     }
                     else
