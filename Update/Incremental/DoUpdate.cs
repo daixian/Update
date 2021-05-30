@@ -43,6 +43,10 @@ namespace Update.Incremental
         {
             DLog.Init("log", "Update", DLog.INIT_RELATIVE.MODULE, false);
 
+            string movedoneFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "movedone");
+            if (File.Exists(movedoneFile))
+                File.Delete(movedoneFile);
+
             //载入配置
             setMessage("载入配置...");
             config = JsonMapper.ToObject<UpdateConfig>(File.ReadAllText(configPath));
@@ -106,6 +110,7 @@ namespace Update.Incremental
                 setMessage("文件都是最新的,不需要更新!");
                 return;
             }
+
             DirectoryInfo downlodeDir = new DirectoryInfo(Path.Combine(config.CacheDir, "download"));//下载到临时文件夹的download文件夹
             if (!downlodeDir.Exists)
                 Directory.CreateDirectory(downlodeDir.FullName);
@@ -197,7 +202,7 @@ namespace Update.Incremental
             }
             setMessage($"启动拷贝文件程序...");
             //到了此处应该所有文件都下载完成了
-            FileInfo movefileEXE = new FileInfo("./movefile.exe");
+            FileInfo movefileEXE = new FileInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "movefile.exe"));
             if (movefileEXE.Exists)
             {
                 DLog.LogI($"启动拷贝文件程序" + movefileEXE.FullName);

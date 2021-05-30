@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.Threading;
+using xuexue;
 
 namespace movefile
 {
@@ -20,6 +21,7 @@ namespace movefile
         public Form1()
         {
             InitializeComponent();
+            DLog.Init("log", "movefile", DLog.INIT_RELATIVE.MODULE, false);
         }
 
         /// <summary>
@@ -57,8 +59,9 @@ namespace movefile
 
         private void MoveFile()
         {
-            if (File.Exists("./movedone"))
-                File.Delete("./movedone");
+            string movedoneFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "movedone");
+            if (File.Exists(movedoneFile))
+                File.Delete(movedoneFile);
 
             setProgress(0);
 
@@ -125,7 +128,7 @@ namespace movefile
             }
             setProgress(100);
             //创建一个文件标记拷贝完成了
-            File.WriteAllLines("./movedone", new string[] { sourceDir, targetDir });
+            File.WriteAllLines(movedoneFile, new string[] { sourceDir, targetDir });
 
             for (int i = 0; i < listStartEXE.Count; i++)
             {
@@ -187,20 +190,34 @@ namespace movefile
             ServiceController sc = null;
             try
             {
-                //DLog.LogI("ServerHelper.StartServer():创建服务控制,准备启动服务！");
+                DLog.LogI("ServerHelper.StartServer():创建服务控制,准备启动服务！");
                 sc = new ServiceController(name);
-
                 //开启服务
-                if ((sc.Status.Equals(ServiceControllerStatus.Stopped)) || (sc.Status.Equals(ServiceControllerStatus.StopPending)))
+                for (int i = 0; i < 5; i++)
                 {
-                    sc.Start();
                     sc.Refresh();
+                    if ((sc.Status.Equals(ServiceControllerStatus.Stopped)) || (sc.Status.Equals(ServiceControllerStatus.StopPending)))
+                    {
+                        DLog.LogI($"ServerHelper.StartServer():当前{name}服务停止,启动服务...");
+                        sc.Start();
+                        sc.Refresh();
+                    }
+                    if (sc.Status == ServiceControllerStatus.Running)
+                    {
+                        DLog.LogI("ServerHelper.StartServer():服务启动成功！");
+                        break;
+                    }
+                    else
+                    {
+                        DLog.LogI($"ServerHelper.StartServer():当前服务状态为{sc.Status},等待1秒");
+                        Thread.Sleep(1000);
+                    }
                 }
-                // DLog.LogI("ServerHelper.StartServer():服务启动成功！");
+
             }
             catch (Exception e)
             {
-                //DLog.LogE("ServerHelper.StartServer():尝试开始服务失败！e=" + e.Message);
+                DLog.LogE("ServerHelper.StartServer():尝试开始服务失败！e=" + e.Message);
             }
             finally
             {
