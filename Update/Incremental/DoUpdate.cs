@@ -162,6 +162,17 @@ namespace Update.Incremental
                             try
                             {
                                 await item.url.DownloadFileAsync(dwfilePath.Directory.FullName);
+                                dwfilePath.Refresh();//需要刷新一下
+                                //下载完成之后校验sha256
+                                if (dwfilePath.Exists && (dwfilePath.SHA256() == item.SHA256))
+                                {
+                                    DLog.LogI($"下载:{item.relativePath}成功,校验SHA256通过!");
+                                }
+                                else
+                                {
+                                    DLog.LogE($"DoUpdate.Start():校验文件SHA256失败{item.relativePath}");
+                                    isError = true;
+                                }
                             }
                             catch (Exception e)
                             {
