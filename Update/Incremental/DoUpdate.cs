@@ -203,6 +203,30 @@ namespace Update.Incremental
             setMessage($"所有文件下载完成!");
 
             //TODO:这里需要向追踪服务查询是否空闲
+            try
+            {
+                DLog.LogI($"查询是否可以移动文件...");
+                while (true)
+                {
+                    string canMoveFile = await config.CanMoveFileUrl.GetStringAsync();
+                    DLog.LogI($"查询结果:{canMoveFile}");
+                    if (canMoveFile == "true")
+                    {
+                        DLog.LogI($"查询成功,可以开始移动文件!");
+                        break;
+                    }
+                    else
+                    {
+                        DLog.LogI($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
+                        Thread.Sleep(60 * 1000);//60秒后再问一次
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                //如果异常那么也直接启动拷贝程序
+                DLog.LogI($"查询是否可以移动文件异常{e.Message}");
+            }
 
             foreach (var item in config.NeedCloseExeName)
             {

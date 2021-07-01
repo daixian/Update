@@ -17,7 +17,7 @@ namespace Update.Incremental.DTO
         /// <summary>
         /// 这个要更新的软件名
         /// </summary>
-        public string SoftName = "MRSystem";
+        public string SoftName = "TrackingService";
 
         /// <summary>
         /// 要替换升级的软件的目录
