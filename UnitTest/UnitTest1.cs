@@ -5,12 +5,37 @@ using Flurl.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace UnitTest
 {
     [TestClass]
     public class UnitTest1
     {
+        [TestMethod]
+        public void TestRegex()
+        {
+            string text = "server:AuxiliaryService\r\n";
+            Match m = Regex.Match(text, @"^server\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
+            Assert.IsTrue(m.Success);
+            string result = m.Groups[1].Value;
+            Assert.AreEqual(result, "AuxiliaryService");
+
+        }
+
+        [TestMethod]
+        public void TestRegex2()
+        {
+            string text = "server:AuxiliaryService";
+            Match m = Regex.Match(text, @"^server\s*:\s*(\S+)\s*");
+            Assert.IsTrue(m.Success);
+
+            string result = m.Groups[1].Value;
+            Assert.AreEqual(result, "AuxiliaryService");
+
+        }
+
+
         [TestMethod]
         public void TestGetAsync1()
         {

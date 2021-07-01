@@ -71,20 +71,24 @@ namespace movefile
                 string[] lines = File.ReadAllLines(configFile);
                 sourceDir = lines[0];//第一行表示源文件夹位置
                 targetDir = lines[1];//第二行表示目标文件夹
-
+                DLog.LogI($"ServerHelper.MoveFile():读配置文件sourceDir={sourceDir},targetDir={targetDir}.");
                 for (int i = 2; i < lines.Length; i++)
                 {
                     //这是一个要启动的exe的配置
-                    Match m = Regex.Match(lines[i], @"^exe\s*:\s*");
+                    Match m = Regex.Match(lines[i], @"^exe\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
                     if (m.Success)
                     {
-                        listStartEXE.Add(lines[i].Substring(m.Index + m.Length));
+                        string exe = m.Groups[1].Value;
+                        listStartEXE.Add(exe);
+                        DLog.LogI($"ServerHelper.MoveFile():读配置文件,移动文件后启动exe={exe}.");
                         continue;
                     }
-                    m = Regex.Match(lines[i], @"^server\s*:\s*");
+                    m = Regex.Match(lines[i], @"^server\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
                     if (m.Success)
                     {
-                        listStartServer.Add(lines[i].Substring(m.Index + m.Length));
+                        string server = m.Groups[1].Value;
+                        listStartServer.Add(server);
+                        DLog.LogI($"ServerHelper.MoveFile():读配置文件,移动文件后启动server={server}.");
                         continue;
                     }
                 }
