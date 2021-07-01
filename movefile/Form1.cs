@@ -71,7 +71,7 @@ namespace movefile
                 string[] lines = File.ReadAllLines(configFile);
                 sourceDir = lines[0];//第一行表示源文件夹位置
                 targetDir = lines[1];//第二行表示目标文件夹
-                DLog.LogI($"ServerHelper.MoveFile():读配置文件sourceDir={sourceDir},targetDir={targetDir}.");
+                DLog.LogI($"MoveFile():读配置文件sourceDir={sourceDir},targetDir={targetDir}.");
                 for (int i = 2; i < lines.Length; i++)
                 {
                     //这是一个要启动的exe的配置
@@ -80,7 +80,7 @@ namespace movefile
                     {
                         string exe = m.Groups[1].Value;
                         listStartEXE.Add(exe);
-                        DLog.LogI($"ServerHelper.MoveFile():读配置文件,移动文件后启动exe={exe}.");
+                        DLog.LogI($"MoveFile():读配置文件,移动文件后启动exe={exe}.");
                         continue;
                     }
                     m = Regex.Match(lines[i], @"^server\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
@@ -88,7 +88,7 @@ namespace movefile
                     {
                         string server = m.Groups[1].Value;
                         listStartServer.Add(server);
-                        DLog.LogI($"ServerHelper.MoveFile():读配置文件,移动文件后启动server={server}.");
+                        DLog.LogI($"MoveFile():读配置文件,移动文件后启动server={server}.");
                         continue;
                     }
                 }
@@ -190,11 +190,10 @@ namespace movefile
         /// <returns></returns>
         public void StartServer(string name)
         {
-
             ServiceController sc = null;
             try
             {
-                DLog.LogI("ServerHelper.StartServer():创建服务控制,准备启动服务！");
+                DLog.LogI($"StartServer():创建服务控制,准备启动服务{name}！");
                 sc = new ServiceController(name);
                 //开启服务
                 for (int i = 0; i < 5; i++)
@@ -202,33 +201,31 @@ namespace movefile
                     sc.Refresh();
                     if ((sc.Status.Equals(ServiceControllerStatus.Stopped)) || (sc.Status.Equals(ServiceControllerStatus.StopPending)))
                     {
-                        DLog.LogI($"ServerHelper.StartServer():当前{name}服务停止,启动服务...");
+                        DLog.LogI($"StartServer():当前{name}服务停止,启动服务...");
                         sc.Start();
                         sc.Refresh();
                     }
                     if (sc.Status == ServiceControllerStatus.StartPending || sc.Status == ServiceControllerStatus.Running)
                     {
-                        DLog.LogI($"ServerHelper.StartServer():当前服务状态为{sc.Status},服务启动成功！");
+                        DLog.LogI($"StartServer():当前服务状态为{sc.Status},服务启动成功！");
                         break;
                     }
                     else
                     {
-                        DLog.LogI($"ServerHelper.StartServer():当前服务状态为{sc.Status},等待1秒");
+                        DLog.LogI($"StartServer():当前服务状态为{sc.Status},等待1秒");
                         Thread.Sleep(1000);
                     }
                 }
-
             }
             catch (Exception e)
             {
-                DLog.LogE("ServerHelper.StartServer():尝试开始服务失败！e=" + e.Message);
+                DLog.LogE("StartServer():尝试开始服务失败！e=" + e.Message);
             }
             finally
             {
                 if (sc != null)
                     sc.Close();
             }
-
         }
     }
 }
