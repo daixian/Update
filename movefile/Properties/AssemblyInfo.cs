@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("movefile")]
 [assembly: AssemblyDescription("更新程序用于移动文件")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("xuexuesoft.")]
+[assembly: AssemblyCompany("xuexuesoft")]
 [assembly: AssemblyProduct("movefile")]
 [assembly: AssemblyCopyright("© 2021-2022 xuexuesoft.")]
 [assembly: AssemblyTrademark("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // 可以指定所有值，也可以使用以下所示的 "*" 预置版本号和修订号
 // 方法是按如下所示使用“*”: :
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.2.7.0701")]
-[assembly: AssemblyFileVersion("0.2.7.0701")]
+[assembly: AssemblyVersion("0.2.8.1021")]
+[assembly: AssemblyFileVersion("0.2.8.1021")]

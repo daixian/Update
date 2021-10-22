@@ -91,6 +91,26 @@ namespace movefile
                         DLog.LogI($"MoveFile():读配置文件,移动文件后启动server={server}.");
                         continue;
                     }
+                    m = Regex.Match(lines[i], @"^remove\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
+                    if (m.Success)
+                    {
+                        string fileName = m.Groups[1].Value;
+                        DLog.LogI($"MoveFile():读配置文件,移除目标文件 {fileName}.");
+                        try
+                        {
+                            FileInfo targetRemoveFile = new FileInfo(Path.Combine(targetDir, fileName));
+                            if (File.Exists(targetRemoveFile.FullName))
+                                File.Delete(targetRemoveFile.FullName);
+                        }
+                        catch (Exception e)
+                        {
+                            DLog.LogI($"MoveFile():移除目标文件异常{e.Message}.");
+                        }
+
+
+                        continue;
+                    }
+
                 }
             }
             else
