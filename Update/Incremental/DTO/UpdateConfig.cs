@@ -40,9 +40,14 @@ namespace Update.Incremental.DTO
         public string[] newVersionUrl = new string[] { "https://home.xuexuesoft.com:8010/update/TrackingService/v1.0.0.0.json" };
 
         /// <summary>
-        /// 查询当前是否可以移动文件的url
+        /// 查询当前是否可以移动文件的url:"http://127.0.0.1:42015/status/can_start_update"
         /// </summary>
-        public string CanMoveFileUrl = "http://127.0.0.1:42015/status/can_start_update";
+        public string CanMoveFileUrl;
+
+        /// <summary>
+        /// 要执行的命令行
+        /// </summary>
+        public string[] cmds = new string[] { };
 
         /// <summary>
         /// 当移动文件前需要保证关闭的进程名

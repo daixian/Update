@@ -203,29 +203,39 @@ namespace Update.Incremental
             setMessage($"所有文件下载完成!");
 
             //TODO:这里需要向追踪服务查询是否空闲
-            try
+            if (!string.IsNullOrEmpty(config.CanMoveFileUrl))
             {
-                DLog.LogI($"查询是否可以移动文件...");
-                while (true)
+                try
                 {
-                    string canMoveFile = await config.CanMoveFileUrl.GetStringAsync();
-                    DLog.LogI($"查询结果:{canMoveFile}");
-                    if (canMoveFile == "true")
+                    DLog.LogI($"查询是否可以移动文件...");
+                    while (true)
                     {
-                        DLog.LogI($"查询成功,可以开始移动文件!");
-                        break;
-                    }
-                    else
-                    {
-                        DLog.LogI($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
-                        Thread.Sleep(60 * 1000);//60秒后再问一次
+                        string canMoveFile = await config.CanMoveFileUrl.GetStringAsync();
+                        DLog.LogI($"查询结果:{canMoveFile}");
+                        if (canMoveFile == "true")
+                        {
+                            DLog.LogI($"查询成功,可以开始移动文件!");
+                            break;
+                        }
+                        else
+                        {
+                            DLog.LogI($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
+                            Thread.Sleep(60 * 1000);//60秒后再问一次
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                    //如果异常那么也直接启动拷贝程序
+                    DLog.LogI($"查询是否可以移动文件异常{e.Message}");
+                }
             }
-            catch (Exception e)
+
+            if (config.cmds != null)
             {
-                //如果异常那么也直接启动拷贝程序
-                DLog.LogI($"查询是否可以移动文件异常{e.Message}");
+                DLog.LogI($"执行cmd命令,一共{config.cmds.Length}条..");
+                RunCmd(config.cmds);
+                await Task.Delay(3000);
             }
 
             foreach (var item in config.NeedCloseExeName)
@@ -249,6 +259,37 @@ namespace Update.Incremental
             }
         }
 
+        /// <summary>
+        /// 执行命令行
+        /// </summary>
+        /// <param name="cmds"></param>
+        private void RunCmd(string[] cmds)
+        {
+            if (cmds == null || cmds.Length == 0)
+            {
+                return;
+            }
+            try
+            {
+                Process process = new Process();
+                process.StartInfo.FileName = "powershell.exe";
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardInput = true;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+                for (int i = 0; i < cmds.Length; i++)
+                {
+                    process.StandardInput.WriteLine(cmds[0]);
+                }
+                process.StandardInput.WriteLine("exit");
+                process.StandardOutput.ReadToEnd();
+            }
+            catch (Exception e)
+            {
+                DLog.LogE($"执行命令行异常" + e.Message);
+            }
+        }
 
         /// <summary>
         /// 已经关闭了没有找到进程才会返回false
