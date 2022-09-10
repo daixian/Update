@@ -53,7 +53,17 @@ namespace movefile
         {
             Task.Run(() =>
             {
-                MoveFile();
+                try
+                {
+                    MoveFile();
+                }
+                catch (Exception ex)
+                {
+                    DLog.LogE($"MoveFile():异常{ex.Message}.");
+                }
+
+                //关闭自己算了
+                endCopy();
             });
         }
 
@@ -146,7 +156,14 @@ namespace movefile
                 {
                     Directory.CreateDirectory(targetFile.Directory.FullName);
                 }
-                File.Copy(fis[i].FullName, targetFile.FullName, true);
+                try
+                {
+                    File.Copy(fis[i].FullName, targetFile.FullName, true);
+                }
+                catch (Exception e)
+                {
+                    DLog.LogE($"MoveFile():最终拷贝目标文件异常{e.Message}.");
+                }
                 //设置进度
                 setProgress(i * 100 / fis.Length);
             }
@@ -163,9 +180,6 @@ namespace movefile
             {
                 StartServer(listStartServer[i]);
             }
-
-            //关闭自己算了
-            endCopy();
         }
 
         private void setProgress(int value)
