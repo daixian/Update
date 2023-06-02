@@ -15,6 +15,7 @@ using xuexue;
 using xuexue.utility;
 using System.Diagnostics;
 using Flurl.Http;
+using System.Runtime.Remoting.Messaging;
 
 namespace Update.Incremental
 {
@@ -269,7 +270,8 @@ namespace Update.Incremental
             {
                 DLog.LogI($"执行cmd命令,一共{config.cmds.Length}条..");
                 RunCmd(config.cmds);
-                await Task.Delay(3000);
+                //await Task.Delay(3000);
+                // 这里由于子进程的原因,所以不要等待了,直接去下面关闭吧.
             }
 
             foreach (var item in config.NeedCloseExeName)
@@ -307,17 +309,24 @@ namespace Update.Incremental
             {
                 Process process = new Process();
                 process.StartInfo.FileName = "powershell.exe";
-                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.UseShellExecute = false;//需要明确执行一个已知的程序,需要重定向输入和输出
                 process.StartInfo.RedirectStandardInput = true;
                 process.StartInfo.RedirectStandardOutput = true;
                 process.StartInfo.CreateNoWindow = true;
                 process.Start();
                 for (int i = 0; i < cmds.Length; i++)
                 {
-                    process.StandardInput.WriteLine(cmds[0]);
+                    DLog.LogI($"cmd执行:{cmds[i]}");
+                    process.StandardInput.WriteLine(cmds[i]);
+                    //DLog.LogI($"{process.StandardOutput.ReadToEndAsync}");
                 }
+                DLog.LogI($"cmd执行:exit");
                 process.StandardInput.WriteLine("exit");
-                process.StandardOutput.ReadToEnd();
+                Task.Run(() =>
+                {
+                    DLog.LogI($"{process.StandardOutput.ReadToEnd()}");
+                });
+
             }
             catch (Exception e)
             {

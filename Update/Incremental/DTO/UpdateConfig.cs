@@ -50,13 +50,17 @@ namespace Update.Incremental.DTO
         public string[] CloseExeUrl = new string[] { "http://127.0.0.1:42015/app/exit" };
 
         /// <summary>
-        /// 要执行的命令行 
+        /// 要执行的命令行.
+        /// 这里有个坑,由于Update是AuxiliaryService的子进程,如果调用这个stop会把Update自己给结束掉.,所以不能调用这个.
         /// </summary>
-        public string[] cmds = new string[] { "\"C:\\Program Files\\TrackingService\\tool\\AuxiliaryService.exe\" stop",
-            "\"C:\\Program Files\\TrackingService\\TrackerService.exe\" stop" };
+        public string[] cmds = new string[] { "cd 'C:\\Program Files\\TrackingService'",
+           
+                                              //".\\tool\\AuxiliaryService.exe stop",
+                                              ".\\TrackerService.exe stop" };
 
         /// <summary>
-        /// 当移动文件前需要保证关闭的进程名
+        /// 当移动文件前需要保证关闭的进程名,
+        /// 虽然Update是Auxiliary的子进程,但是kill这个Auxiliary并不会关闭Update自己.
         /// </summary>
         public string[] NeedCloseExeName = new string[] { "TrackerService", "Tracking", "Diagnosis" };
 
