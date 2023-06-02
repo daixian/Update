@@ -42,6 +42,7 @@ namespace Update.Incremental
         public async Task Start(string configPath, Action<string> setMessage, Action<int> setProgress)
         {
             DLog.Init("log", "Update", DLog.INIT_RELATIVE.MODULE, false);
+            DLog.SetFlushOn(DLog.LOG_THR.debug);
 
             string movedoneFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "movedone");
             if (File.Exists(movedoneFile))
@@ -49,7 +50,15 @@ namespace Update.Incremental
 
             //载入配置
             setMessage("载入配置...");
-            config = JsonMapper.ToObject<UpdateConfig>(File.ReadAllText(configPath));
+            DLog.LogI($"DoUpdate.Start():载入配置文件..");
+            try
+            {
+                config = JsonMapper.ToObject<UpdateConfig>(File.ReadAllText(configPath));
+            }
+            catch (Exception e)
+            {
+                DLog.LogE($"DoUpdate.Start():载入配置文件异常{e.Message}");
+            }
             if (config != null)
                 DLog.LogI($"DoUpdate.Start():载入配置文件{configPath}成功,SoftName:{config.SoftName}");
             else
@@ -207,6 +216,7 @@ namespace Update.Incremental
             {
                 try
                 {
+                    Thread.Sleep(10 * 1000);//10秒后再开始查询这个,这样如果是开机没有人使用就会开始休眠
                     DLog.LogI($"查询是否可以移动文件...");
                     while (true)
                     {
@@ -220,7 +230,7 @@ namespace Update.Incremental
                         else
                         {
                             DLog.LogI($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
-                            Thread.Sleep(60 * 1000);//60秒后再问一次
+                            Thread.Sleep(30 * 1000);//30秒后再问一次
                         }
                     }
                 }
@@ -228,6 +238,30 @@ namespace Update.Incremental
                 {
                     //如果异常那么也直接启动拷贝程序
                     DLog.LogI($"查询是否可以移动文件异常{e.Message}");
+                }
+            }
+
+            if (config.CloseExeUrl != null)
+            {
+                foreach (var closeurl in config.CloseExeUrl)
+                {
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(closeurl))
+                        {
+                            DLog.LogI($"尝试发送主动关闭请求{closeurl}");
+                            string res = await closeurl.GetStringAsync();
+                            DLog.LogI($"发送主动关闭请求返回{res}");
+                            if (res != null)
+                            {
+                                Thread.Sleep(5 * 1000);//休眠5秒等人家关闭
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        DLog.LogI($"发送主动关闭请求异常{e.Message}");
+                    }
                 }
             }
 
@@ -242,7 +276,7 @@ namespace Update.Incremental
             {
                 while (KillProcess(item))//一直关闭到找不到这个进程
                 {
-                    await Task.Delay(500);
+                    await Task.Delay(2000);//两秒一次吧
                 }
             }
             setMessage($"启动拷贝文件程序...");
@@ -305,14 +339,14 @@ namespace Update.Incremental
                 //判断此进程是否是要查找的进程
                 if (pro[i].ProcessName.ToString().ToLower() == name.ToLower())
                 {
-                    DLog.LogI("DoUpdate.killProcess():找到了进程,尝试关闭" + name);
+                    DLog.LogI($"DoUpdate.killProcess():找到了进程 {name} ,尝试关闭");
                     try
                     {
                         pro[i].Kill();//结束进程
                     }
                     catch (Exception e)
                     {
-                        DLog.LogE("DoUpdate.killProcess():kill失败！e=" + e.Message);
+                        DLog.LogE($"DoUpdate.killProcess():kill {name} 失败！e={e.Message}");
                     }
                     return true;
                 }

@@ -37,7 +37,7 @@ namespace Update.Incremental.DTO
         /// <summary>
         /// 新版本的软件信息文件的URL
         /// </summary>
-        public string[] newVersionUrl = new string[] { "https://home.xuexuesoft.com:8010/update/TrackingService/v1.0.0.0.json" };
+        public string[] newVersionUrl = new string[] { "https://hrd.kmaxxr.com/update/TrackingService/v1.0.0.0.json" };
 
         /// <summary>
         /// 查询当前是否可以移动文件的url:"http://127.0.0.1:42015/status/can_start_update"
@@ -45,9 +45,15 @@ namespace Update.Incremental.DTO
         public string CanMoveFileUrl;
 
         /// <summary>
-        /// 要执行的命令行
+        /// 要发送http请求主动关闭的进程url
         /// </summary>
-        public string[] cmds = new string[] { };
+        public string[] CloseExeUrl = new string[] { "http://127.0.0.1:42015/app/exit" };
+
+        /// <summary>
+        /// 要执行的命令行 
+        /// </summary>
+        public string[] cmds = new string[] { "\"C:\\Program Files\\TrackingService\\tool\\AuxiliaryService.exe\" stop",
+            "\"C:\\Program Files\\TrackingService\\TrackerService.exe\" stop" };
 
         /// <summary>
         /// 当移动文件前需要保证关闭的进程名
