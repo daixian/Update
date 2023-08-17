@@ -28,8 +28,7 @@ namespace Update
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Task.Run(async () =>
-            {
+            Task.Run(async () => {
                 DoUpdate doUpdate = new DoUpdate();
                 await doUpdate.Start(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "UpdateConfig.json"), setText, setProgress);
                 this.Invoke(new Action(() => { this.Close(); }));
@@ -38,16 +37,14 @@ namespace Update
 
         private void setProgress(int value)
         {
-            this.Invoke(new Action(() =>
-            {
+            this.Invoke(new Action(() => {
                 this.progressBar1.Value = value;
             }));
         }
 
         private void setText(string text)
         {
-            this.Invoke(new Action(() =>
-            {
+            this.Invoke(new Action(() => {
                 this.label1.Text = text;
             }));
         }
