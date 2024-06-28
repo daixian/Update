@@ -36,8 +36,7 @@ namespace movefile
 
             bool runAsAdmin = wp.IsInRole(WindowsBuiltInRole.Administrator);
 
-            if (!runAsAdmin)
-            {
+            if (!runAsAdmin) {
                 // It is not possible to launch a ClickOnce app as administrator directly,  
                 // so instead we launch the app as administrator in a new process.  
                 var processInfo = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase);
@@ -46,13 +45,10 @@ namespace movefile
                 processInfo.UseShellExecute = true;
                 processInfo.Verb = "runas";
                 // Start the new process  
-                try
-                {
+                try {
                     Process.Start(processInfo);
 
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                 }
 
                 // Shut down the current process  

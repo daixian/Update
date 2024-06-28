@@ -14,29 +14,18 @@ namespace CalcSHA256
     {
         static void Main(string[] args)
         {
-            Log.EventLogInfo += (msg) => { Console.WriteLine(msg); };
-            Log.EventLogWarning += (msg) => { Console.WriteLine(msg); };
-            Log.EventLogError += (msg) => { Console.WriteLine(msg); };
-            Log.EventLogDebug += (msg) => { Console.WriteLine(msg); };
-
-
-
             DirectoryInfo root = new DirectoryInfo(rootDir);
             DirectoryInfo[] dis = root.GetDirectories("*", SearchOption.AllDirectories);
-            foreach (var di in dis)
-            {
+            foreach (var di in dis) {
                 if (di.Parent.Parent.FullName == root.FullName &&
-                    Regex.IsMatch(di.Name, @"^v\d+\.\d+\.\d+.\d+$"))
-                {
+                    Regex.IsMatch(di.Name, @"^v\d+\.\d+\.\d+.\d+$")) {
                     Console.WriteLine($"找到了一个文件夹:{di.FullName}");
                     FileInfo fiVerJson = new FileInfo(di.FullName + ".json");
-                    if (!fiVerJson.Exists)
-                    {
+                    if (!fiVerJson.Exists) {
                         Console.WriteLine($"这个版本没有计算过SHA256,开始计算...");
 
                         List<uint> ver = new List<uint>();
-                        foreach (Match m in Regex.Matches(di.Name, @"\d+"))
-                        {
+                        foreach (Match m in Regex.Matches(di.Name, @"\d+")) {
                             ver.Add(Convert.ToUInt32(m.Value));
                         }
 
@@ -44,8 +33,7 @@ namespace CalcSHA256
                         Console.WriteLine($"计算结束,保存到{fiVerJson.FullName}");
 
                     }
-                    else
-                    {
+                    else {
                         Console.WriteLine($"这个版本已经计算过SHA256,跳过...");
                     }
 

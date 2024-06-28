@@ -13,15 +13,22 @@ using System.Diagnostics;
 using System.ServiceProcess;
 using System.Threading;
 using xuexue;
+using log4net;
+using xuexue.common;
 
 namespace movefile
 {
     public partial class Form1 : Form
     {
+        private static readonly ILog Log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public Form1()
         {
             InitializeComponent();
-            DLog.Init("log", "movefile", DLog.INIT_RELATIVE.MODULE, false);
+
+            LogHelper.AppName = "UpdateMovefile";
+            LogHelper.Setup();
         }
 
         /// <summary>
@@ -51,15 +58,11 @@ namespace movefile
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Task.Run(() =>
-            {
-                try
-                {
+            Task.Run(() => {
+                try {
                     MoveFile();
-                }
-                catch (Exception ex)
-                {
-                    DLog.LogE($"MoveFile():异常{ex.Message}.");
+                } catch (Exception ex) {
+                    Log.Error($"MoveFile():异常{ex.Message}.");
                 }
 
                 //关闭自己算了
@@ -76,45 +79,37 @@ namespace movefile
             setProgress(0);
 
             //读一下文件
-            if (File.Exists(configFile))
-            {
+            if (File.Exists(configFile)) {
                 string[] lines = File.ReadAllLines(configFile);
                 sourceDir = lines[0];//第一行表示源文件夹位置
                 targetDir = lines[1];//第二行表示目标文件夹
-                DLog.LogI($"MoveFile():读配置文件sourceDir={sourceDir},targetDir={targetDir}.");
-                for (int i = 2; i < lines.Length; i++)
-                {
+                Log.Info($"MoveFile():读配置文件sourceDir={sourceDir},targetDir={targetDir}.");
+                for (int i = 2; i < lines.Length; i++) {
                     //这是一个要启动的exe的配置
                     Match m = Regex.Match(lines[i], @"^exe\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
-                    if (m.Success)
-                    {
+                    if (m.Success) {
                         string exe = m.Groups[1].Value;
                         listStartEXE.Add(exe);
-                        DLog.LogI($"MoveFile():读配置文件,移动文件后启动exe={exe}.");
+                        Log.Info($"MoveFile():读配置文件,移动文件后启动exe={exe}.");
                         continue;
                     }
                     m = Regex.Match(lines[i], @"^server\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
-                    if (m.Success)
-                    {
+                    if (m.Success) {
                         string server = m.Groups[1].Value;
                         listStartServer.Add(server);
-                        DLog.LogI($"MoveFile():读配置文件,移动文件后启动server={server}.");
+                        Log.Info($"MoveFile():读配置文件,移动文件后启动server={server}.");
                         continue;
                     }
                     m = Regex.Match(lines[i], @"^remove\s*:\s*(\S+)\s*");//\s为空白符,\S为非空白符
-                    if (m.Success)
-                    {
+                    if (m.Success) {
                         string fileName = m.Groups[1].Value;
-                        DLog.LogI($"MoveFile():读配置文件,移除目标文件 {fileName}.");
-                        try
-                        {
+                        Log.Info($"MoveFile():读配置文件,移除目标文件 {fileName}.");
+                        try {
                             FileInfo targetRemoveFile = new FileInfo(Path.Combine(targetDir, fileName));
                             if (File.Exists(targetRemoveFile.FullName))
                                 File.Delete(targetRemoveFile.FullName);
-                        }
-                        catch (Exception e)
-                        {
-                            DLog.LogI($"MoveFile():移除目标文件异常{e.Message}.");
+                        } catch (Exception e) {
+                            Log.Info($"MoveFile():移除目标文件异常{e.Message}.");
                         }
 
 
@@ -123,46 +118,37 @@ namespace movefile
 
                 }
             }
-            else
-            {
+            else {
                 return;
             }
 
             DirectoryInfo di = new DirectoryInfo(sourceDir);
-            if (!di.Exists)
-            {
+            if (!di.Exists) {
                 return;
             }
 
             FileInfo[] fis = di.GetFiles("*", SearchOption.AllDirectories);//无筛选的得到所有文件
-            for (int i = 0; i < fis.Length; i++)
-            {
+            for (int i = 0; i < fis.Length; i++) {
                 string relativePath;
                 //生成相对路径:这个文件的完整目录中替换根目录的部分即可,最后切分文件夹都使用斜杠/ (unity的API中基本是/)
                 //相对路径结果前面不带斜杠
-                if (di.FullName.EndsWith("\\") || di.FullName.EndsWith("/"))
-                {
+                if (di.FullName.EndsWith("\\") || di.FullName.EndsWith("/")) {
                     relativePath = fis[i].FullName.Substring(di.FullName.Length).Replace("\\", "/");
                 }
-                else
-                {
+                else {
                     //为了相对路径结果前面不带斜杠,所以+1
                     relativePath = fis[i].FullName.Substring(di.FullName.Length + 1).Replace("\\", "/");
                 }
 
                 //文件拷贝过去
                 FileInfo targetFile = new FileInfo(Path.Combine(targetDir, relativePath));
-                if (!targetFile.Directory.Exists)
-                {
+                if (!targetFile.Directory.Exists) {
                     Directory.CreateDirectory(targetFile.Directory.FullName);
                 }
-                try
-                {
+                try {
                     File.Copy(fis[i].FullName, targetFile.FullName, true);
-                }
-                catch (Exception e)
-                {
-                    DLog.LogE($"MoveFile():最终拷贝目标文件异常{e.Message}.");
+                } catch (Exception e) {
+                    Log.Error($"MoveFile():最终拷贝目标文件异常{e.Message}.");
                 }
                 //设置进度
                 setProgress(i * 100 / fis.Length);
@@ -171,29 +157,25 @@ namespace movefile
             //创建一个文件标记拷贝完成了
             File.WriteAllLines(movedoneFile, new string[] { sourceDir, targetDir });
 
-            for (int i = 0; i < listStartEXE.Count; i++)
-            {
+            for (int i = 0; i < listStartEXE.Count; i++) {
                 StartEXE(listStartEXE[i]);
             }
 
-            for (int i = 0; i < listStartServer.Count; i++)
-            {
+            for (int i = 0; i < listStartServer.Count; i++) {
                 StartServer(listStartServer[i]);
             }
         }
 
         private void setProgress(int value)
         {
-            this.Invoke(new Action(() =>
-            {
+            this.Invoke(new Action(() => {
                 this.progressBar1.Value = value;
             }));
         }
 
         private void endCopy()
         {
-            this.Invoke(new Action(() =>
-            {
+            this.Invoke(new Action(() => {
                 TipWin tipSuccess = new TipWin();
                 tipSuccess.Show();
                 this.Hide();
@@ -202,19 +184,15 @@ namespace movefile
 
         private void StartEXE(string fileName)
         {
-            try
-            {
+            try {
                 FileInfo fi = new FileInfo(fileName);
-                if (fi.Exists)
-                {
+                if (fi.Exists) {
                     ProcessStartInfo psi = new ProcessStartInfo();
                     psi.FileName = fi.FullName;
                     psi.WorkingDirectory = fi.Directory.FullName;
                     Process.Start(psi);
                 }
-            }
-            catch (Exception)
-            {
+            } catch (Exception) {
             }
         }
 
@@ -225,38 +203,29 @@ namespace movefile
         public void StartServer(string name)
         {
             ServiceController sc = null;
-            try
-            {
-                DLog.LogI($"StartServer():创建服务控制,准备启动服务{name}！");
+            try {
+                Log.Info($"StartServer():创建服务控制,准备启动服务{name}！");
                 sc = new ServiceController(name);
                 //开启服务
-                for (int i = 0; i < 5; i++)
-                {
+                for (int i = 0; i < 5; i++) {
                     sc.Refresh();
-                    if ((sc.Status.Equals(ServiceControllerStatus.Stopped)) || (sc.Status.Equals(ServiceControllerStatus.StopPending)))
-                    {
-                        DLog.LogI($"StartServer():当前{name}服务停止,启动服务...");
+                    if ((sc.Status.Equals(ServiceControllerStatus.Stopped)) || (sc.Status.Equals(ServiceControllerStatus.StopPending))) {
+                        Log.Info($"StartServer():当前{name}服务停止,启动服务...");
                         sc.Start();
                         sc.Refresh();
                     }
-                    if (sc.Status == ServiceControllerStatus.StartPending || sc.Status == ServiceControllerStatus.Running)
-                    {
-                        DLog.LogI($"StartServer():当前服务状态为{sc.Status},服务启动成功！");
+                    if (sc.Status == ServiceControllerStatus.StartPending || sc.Status == ServiceControllerStatus.Running) {
+                        Log.Info($"StartServer():当前服务状态为{sc.Status},服务启动成功！");
                         break;
                     }
-                    else
-                    {
-                        DLog.LogI($"StartServer():当前服务状态为{sc.Status},等待1秒");
+                    else {
+                        Log.Info($"StartServer():当前服务状态为{sc.Status},等待1秒");
                         Thread.Sleep(1000);
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                DLog.LogE("StartServer():尝试开始服务失败！e=" + e.Message);
-            }
-            finally
-            {
+            } catch (Exception e) {
+                Log.Error("StartServer():尝试开始服务失败！e=" + e.Message);
+            } finally {
                 if (sc != null)
                     sc.Close();
             }

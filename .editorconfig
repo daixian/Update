@@ -13,7 +13,11 @@ tab_width = 4
 
 # 新行首选项
 end_of_line = crlf
-insert_final_newline = false
+charset = utf-8-bom
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
 
 #### .NET 编码约定 ####
 
@@ -50,6 +54,7 @@ dotnet_style_null_propagation = true
 dotnet_style_object_initializer = true
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 dotnet_style_prefer_auto_properties = true
+dotnet_style_prefer_collection_expression = when_types_loosely_match
 dotnet_style_prefer_compound_assignment = true
 dotnet_style_prefer_conditional_expression_over_assignment = true
 dotnet_style_prefer_conditional_expression_over_return = true
@@ -112,6 +117,7 @@ csharp_prefer_braces = true
 csharp_prefer_simple_using_statement = true
 csharp_style_namespace_declarations = block_scoped
 csharp_style_prefer_method_group_conversion = true
+csharp_style_prefer_primary_constructors = true
 csharp_style_prefer_top_level_statements = true
 
 # 表达式级首选项
@@ -142,9 +148,9 @@ csharp_style_allow_embedded_statements_on_same_line_experimental = true
 #### C# 格式规则 ####
 
 # 新行首选项
-csharp_new_line_before_catch = true
+csharp_new_line_before_catch = false
 csharp_new_line_before_else = true
-csharp_new_line_before_finally = true
+csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_anonymous_types = true
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_open_brace = types,methods

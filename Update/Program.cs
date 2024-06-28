@@ -7,6 +7,7 @@ using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using xuexue.common;
 
 namespace Update
 {
@@ -22,11 +23,13 @@ namespace Update
             bool mutexCreated;
             String mutexName = "DDCC6B50-902B-418E-BAF6-D494EC9FE132";
             m_Mutex = new Mutex(true, mutexName, out mutexCreated);
-            if (!mutexCreated)
-            {
+            if (!mutexCreated) {
                 m_Mutex = null;
                 return;
             }
+
+            LogHelper.AppName = "Update";
+            LogHelper.Setup();
 
             CheckAdministrator();
 
@@ -50,8 +53,7 @@ namespace Update
 
             bool runAsAdmin = wp.IsInRole(WindowsBuiltInRole.Administrator);
 
-            if (!runAsAdmin)
-            {
+            if (!runAsAdmin) {
                 // It is not possible to launch a ClickOnce app as administrator directly,  
                 // so instead we launch the app as administrator in a new process.  
                 var processInfo = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase);
@@ -60,13 +62,10 @@ namespace Update
                 processInfo.UseShellExecute = true;
                 processInfo.Verb = "runas";
                 // Start the new process  
-                try
-                {
+                try {
                     Process.Start(processInfo);
 
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
                 }
 
                 // Shut down the current process  
