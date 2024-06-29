@@ -197,15 +197,18 @@ namespace Update.Incremental
                 try {
                     Thread.Sleep(10 * 1000);//10秒后再开始查询这个,这样如果是开机没有人使用就会开始休眠
                     Log.Info($"查询是否可以移动文件...");
+                    setMessage($"检查是否可以移动文件...");
                     while (true) {
                         string canMoveFile = await config.CanMoveFileUrl.GetStringAsync();
                         Log.Info($"查询结果:{canMoveFile}");
                         if (canMoveFile == "true") {
                             Log.Info($"查询成功,可以开始移动文件!");
+                            setMessage($"查询成功,可以开始移动文件!");
                             break;
                         }
                         else {
                             Log.Info($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
+                            setMessage($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
                             Thread.Sleep(30 * 1000);//30秒后再问一次
                         }
                     }
@@ -213,6 +216,7 @@ namespace Update.Incremental
                 catch (Exception e) {
                     //如果异常那么也直接启动拷贝程序
                     Log.Info($"查询是否可以移动文件异常{e.Message}");
+                    setMessage($"查询是否可以移动文件异常{e.Message}");
                 }
             }
 
