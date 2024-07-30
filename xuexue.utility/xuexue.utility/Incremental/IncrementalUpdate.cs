@@ -42,10 +42,12 @@ namespace xuexue.utility.Incremental
         /// <param name="rootPath">     写进json的软件安装目录. </param>
         /// <param name="version">      . </param>
         /// <param name="rootUrl">      . </param>
+        /// <param name="debugRootUrl">   </param>
         /// <param name="dirPath">      要计算的文件夹. </param>
         /// <param name="saveJsonPath"> 要保存的json文件位置. </param>
         ///-------------------------------------------------------------------------------------------------
-        public static void CreateSoftVersionFile(string rootPath, uint[] version, string rootUrl, string dirPath, string saveJsonPath)
+        public static void CreateSoftVersionFile(string rootPath, uint[] version, string rootUrl,
+            string dirPath, string saveJsonPath, string debugRootUrl)
         {
 
             if (version == null || version.Length != 4) {
@@ -85,6 +87,12 @@ namespace xuexue.utility.Incremental
 
             string json = JsonConvert.SerializeObject(softFile, Formatting.Indented);
             File.WriteAllText(saveJsonPath, json);
+
+            softFile.rootUrl = debugRootUrl;
+            FileInfo fi = new FileInfo(saveJsonPath);
+            string debugJsonPath = Path.Combine(fi.Directory.FullName, "debug", fi.Name);
+            json = JsonConvert.SerializeObject(softFile, Formatting.Indented);
+            File.WriteAllText(debugJsonPath, json);
         }
 
         /// <summary>
