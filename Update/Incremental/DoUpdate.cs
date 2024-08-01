@@ -57,8 +57,7 @@ namespace Update.Incremental
                 //config = JsonMapper.ToObject<UpdateConfig>(File.ReadAllText(configPath));
                 config = JsonConvert.DeserializeObject<UpdateConfig>(File.ReadAllText(configPath));
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.Error($"DoUpdate.Start():载入配置文件异常{e.Message}");
             }
             if (config != null)
@@ -81,8 +80,7 @@ namespace Update.Incremental
                         isGetNewVersionInfo = true;
                         Log.Info($"DoUpdate.Start():联网获取最新软件版本成功,url={config.newVersionUrl[i]},最新版本为v{newVersionSoft.version[0]}.{newVersionSoft.version[1]}.{newVersionSoft.version[2]}.{newVersionSoft.version[3]}");
 
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         newVersionSoft = null;
                         Log.Warn($"DoUpdate.Start():联网获取最新软件版本失败,url={config.newVersionUrl[i]},err={e.Message}");
                     }
@@ -166,16 +164,14 @@ namespace Update.Incremental
                                     Log.Error($"DoUpdate.Start():校验文件SHA256失败{item.relativePath}");
                                     isError = true;
                                 }
-                            }
-                            catch (Exception e) {
+                            } catch (Exception e) {
                                 Log.Error($"DoUpdate.Start():下载文件失败...  {item.url},err={e.Message}");
                                 isError = true;
                             }
                         }
                         doneCount++;
                         setProgress(doneCount * 100 / downloadList.files.Count);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         Log.Error($"下载文件发生错误!" + e.Message);
                         setMessage($"下载文件发生错误!" + e.Message);
                         isError = true;
@@ -189,13 +185,13 @@ namespace Update.Incremental
                 setMessage($"没有需要更新的文件!");
                 return;
             }
-            Log.Info($"所有文件下载完成!");
-            setMessage($"所有文件下载完成!");
+            Log.Info($"所有文件下载完成!,检查是否可以移动文件...");
+            setMessage($"所有文件下载完成,检查是否可以移动文件...");
 
             //TODO:这里需要向追踪服务查询是否空闲
             if (!string.IsNullOrEmpty(config.CanMoveFileUrl)) {
                 try {
-                    Thread.Sleep(10 * 1000);//10秒后再开始查询这个,这样如果是开机没有人使用就会开始休眠
+                    //Thread.Sleep(10 * 1000);//10秒后再开始查询这个,这样如果是开机没有人使用就会开始休眠
                     Log.Info($"查询是否可以移动文件...");
                     setMessage($"检查是否可以移动文件...");
                     while (true) {
@@ -207,16 +203,15 @@ namespace Update.Incremental
                             break;
                         }
                         else {
-                            Log.Info($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
-                            setMessage($"当前有人正在使用程序,不能移动文件,等待30秒后再试!");
-                            Thread.Sleep(30 * 1000);//30秒后再问一次
+                            Log.Info($"当前有人正在使用程序,不能移动文件,等待20秒后再试!");
+                            setMessage($"当前有人正在使用程序,不能移动文件,等待20秒后再试!");
+                            Thread.Sleep(20 * 1000);//10秒后再问一次
                         }
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     //如果异常那么也直接启动拷贝程序
-                    Log.Info($"查询是否可以移动文件异常{e.Message}");
-                    setMessage($"查询是否可以移动文件异常{e.Message}");
+                    Log.Info($"查询是异常,可能追踪服务没有启动{e.Message}");
+                    setMessage($"查询异常,可能追踪服务没有启动{e.Message}");
                 }
             }
 
@@ -231,8 +226,7 @@ namespace Update.Incremental
                                 Thread.Sleep(5 * 1000);//休眠5秒等人家关闭
                             }
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         Log.Info($"发送主动关闭请求异常{e.Message}");
                     }
                 }
@@ -305,8 +299,7 @@ namespace Update.Incremental
                     Log.Info($"{process.StandardOutput.ReadToEnd()}");
                 });
 
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 Log.Error($"执行命令行异常" + e.Message);
             }
         }
@@ -326,8 +319,7 @@ namespace Update.Incremental
                     Log.Info($"DoUpdate.killProcess():找到了进程 {name} ,尝试关闭");
                     try {
                         pro[i].Kill();//结束进程
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         Log.Error($"DoUpdate.killProcess():kill {name} 失败！e={e.Message}");
                     }
                     return true;

@@ -34,12 +34,6 @@
     <DocumentationFile>bin\Release\xuexue.utility.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Flurl, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Flurl.4.0.0\lib\net461\Flurl.dll</HintPath>
-    </Reference>
-    <Reference Include="Flurl.Http, Version=4.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Flurl.Http.4.0.2\lib\net461\Flurl.Http.dll</HintPath>
-    </Reference>
     <Reference Include="log4net, Version=2.0.17.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.17\lib\net45\log4net.dll</HintPath>
     </Reference>
