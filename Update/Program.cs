@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,11 +14,14 @@ namespace Update
 {
     static class Program
     {
+
+        public static bool CheckCanUpdate = true;
+
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             // 只运行一个程序
             bool mutexCreated;
@@ -29,14 +33,32 @@ namespace Update
             }
 
             LogHelper.AppName = "Update";
+            LogHelper.ClearLogDir();
             LogHelper.Setup();
 
+
+
+            Log.Info("程序启动,参数:" + args.Length);
+
             CheckAdministrator();
+
+
+            bool noCheck = args.Contains("--nocheck");
+
+            if (noCheck) {
+                CheckCanUpdate = false;
+            }
+            else {
+                CheckCanUpdate = true;
+            }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }
+
+        private static readonly ILog Log =
+         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         /// <summary>
         /// 只运行一个程序的锁

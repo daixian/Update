@@ -188,13 +188,15 @@ namespace Update.Incremental
             Log.Info($"所有文件下载完成!,检查是否可以移动文件...");
             setMessage($"所有文件下载完成,检查是否可以移动文件...");
 
-            //TODO:这里需要向追踪服务查询是否空闲
+            // 这里需要向追踪服务查询是否空闲
+            int errorCount = 0;
             if (!string.IsNullOrEmpty(config.CanMoveFileUrl)) {
-                try {
-                    //Thread.Sleep(10 * 1000);//10秒后再开始查询这个,这样如果是开机没有人使用就会开始休眠
-                    Log.Info($"查询是否可以移动文件...");
-                    setMessage($"检查是否可以移动文件...");
-                    while (true) {
+
+                //Thread.Sleep(10 * 1000);//10秒后再开始查询这个,这样如果是开机没有人使用就会开始休眠
+                Log.Info($"查询是否可以移动文件...");
+                setMessage($"检查是否可以移动文件...");
+                while (true) {
+                    try {
                         string canMoveFile = await config.CanMoveFileUrl.GetStringAsync();
                         Log.Info($"查询结果:{canMoveFile}");
                         if (canMoveFile == "true") {
@@ -205,14 +207,24 @@ namespace Update.Incremental
                         else {
                             Log.Info($"当前有人正在使用程序,不能移动文件,等待20秒后再试!");
                             setMessage($"当前有人正在使用程序,不能移动文件,等待20秒后再试!");
-                            Thread.Sleep(20 * 1000);//10秒后再问一次
+                            Thread.Sleep(20 * 1000);//20秒后再问一次
                         }
+                    } catch (Exception e) {
+                        //如果异常那么也直接启动拷贝程序
+                        Log.Info($"查询异常,可能追踪服务没有启动,重试...{e.Message}");
+                        setMessage($"查询异常,可能追踪服务没有启动,重试...{e.Message}");
+                        Thread.Sleep(2000);//2秒后再问一次
+                        errorCount++; //看日志目前每隔4秒会尝试一次
                     }
-                } catch (Exception e) {
-                    //如果异常那么也直接启动拷贝程序
-                    Log.Info($"查询是异常,可能追踪服务没有启动{e.Message}");
-                    setMessage($"查询异常,可能追踪服务没有启动{e.Message}");
+
+                    // 这里跳过是用于手点UI的情况.避免有时
+                    if (errorCount > 10 || !Program.CheckCanUpdate) {
+                        Log.Info($"查询一直异常或者设置了跳过查询!");
+                        setMessage($"查询一直异常或者设置了跳过查询!");
+                        break;
+                    }
                 }
+
             }
 
             if (config.CloseExeUrl != null) {
